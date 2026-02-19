@@ -1,0 +1,31 @@
+INSTALACIÓN DEL PROYECTO DJANGO
+
+1. Clona el repositorio o descarga el proyecto.
+
+2. Abre una terminal en la carpeta del proyecto.
+
+3. Crea un entorno virtual:
+
+   En Windows:
+   python -m venv venv
+
+   En Linux:
+   python3 -m venv venv
+
+4. Activa el entorno virtual:
+
+   En Windows:
+   venv\Scripts\activate
+
+   En Linux:
+   source venv/bin/activate
+
+5. Instala las dependencias del proyecto usando requirements.txt:
+
+   pip install -r requirements.txt
+
+6. Creacion de usuarios administrativos de sistema:
+
+   Al ejecutar el archivo CreateUser.py saldra una ventana donde podremos generar
+   las credenciales de inicio para nuevos usuarios
+ 

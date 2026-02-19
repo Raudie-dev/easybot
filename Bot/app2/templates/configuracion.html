@@ -1,0 +1,113 @@
+{% extends 'base_control.html' %}
+{% block content %}
+<h2>Configuración del Bot WhatsApp</h2>
+
+<form method="post" class="mb-4" style="max-width: 600px;">
+        {% csrf_token %}
+        <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre del Bot</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" value="{{ config.nombre }}" required>
+        </div>
+        <div class="mb-3">
+                <label for="mensaje_bienvenida" class="form-label">Mensaje de Bienvenida</label>
+                <input type="text" class="form-control" id="mensaje_bienvenida" name="mensaje_bienvenida" value="{{ config.mensaje_bienvenida }}">
+        </div>
+        <div class="mb-3">
+                <label for="instrucciones_ia" class="form-label">Prompt / Instrucciones IA</label>
+                <textarea class="form-control" id="instrucciones_ia" name="instrucciones_ia" rows="5" required>{{ config.instrucciones_ia }}</textarea>
+                <div class="form-text">Aquí puedes definir el comportamiento del bot, instrucciones o contexto para DeepSeek.</div>
+        </div>
+        <div class="mb-3">
+                <label for="api_key" class="form-label">API Key DeepSeek</label>
+                <input type="text" class="form-control" id="api_key" name="api_key" value="{{ config.api_key }}" required>
+                <div class="form-text">Tu API Key de DeepSeek (se usará para automatizar respuestas).</div>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar configuración</button>
+</form>
+{% if saved %}
+<div class="alert alert-success">Configuración guardada correctamente.</div>
+{% endif %}
+
+<hr />
+<h3>Probar integración y QR</h3>
+<div id="qr-area">
+    {% if qr %}
+        <p>Escanea el QR con WhatsApp Web (Multi-Device):</p>
+        <img id="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?data={{ qr|urlencode }}&size=300x300" alt="QR" />
+    {% else %}
+        <p id="qr-status">No hay QR activo. Posiblemente la sesión ya está autenticada.</p>
+    {% endif %}
+</div>
+
+<hr />
+<h3>Enviar mensaje de prueba al bot</h3>
+<form id="send-form" method="post" action="{% url 'send_message' %}">
+    {% csrf_token %}
+    <label for="number">Número (ej: 5733...):</label><br />
+    <input type="text" id="number" name="number" placeholder="5733..." required style="width:300px;" /><br />
+    <label for="message">Mensaje:</label><br />
+    <textarea id="message" name="message" rows="3" required style="width:300px;"></textarea><br />
+    <button type="submit">Enviar</button>
+    <span id="send-status" style="margin-left:10px;"></span>
+</form>
+
+<script>
+// Enviar via AJAX para mejor UX
+document.getElementById('send-form').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const number = document.getElementById('number').value.trim();
+    const message = document.getElementById('message').value.trim();
+    const status = document.getElementById('send-status');
+    status.textContent = 'Enviando...';
+
+    const formData = new FormData();
+    formData.append('number', number);
+    formData.append('message', message);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+    try{
+        const resp = await fetch('{% url "send_message" %}', { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+        const data = await resp.json();
+        if(resp.ok && data.ok){
+            status.textContent = 'Enviado correctamente';
+            document.getElementById('message').value = '';
+        } else {
+            status.textContent = 'Error: ' + (data.error || 'No se pudo enviar');
+        }
+    }catch(err){
+        status.textContent = 'Error: ' + err;
+    }
+    setTimeout(()=> status.textContent = '', 4000);
+});
+</script>
+
+<script>
+// Polling sencillo para actualizar el QR cada 5 segundos
+async function pollQr(){
+    try{
+        const resp = await fetch('{% url "qr_json" %}');
+        if(!resp.ok) return;
+        const data = await resp.json();
+        const qr = data.qr;
+        const img = document.getElementById('qr-img');
+        const status = document.getElementById('qr-status');
+        if(qr){
+            const src = 'https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(qr) + '&size=300x300';
+            if(img){ img.src = src; }
+            else{
+                const newImg = document.createElement('img');
+                newImg.id = 'qr-img';
+                newImg.src = src;
+                document.getElementById('qr-area').appendChild(newImg);
+            }
+            if(status) status.textContent = '';
+        } else {
+            if(img) img.remove();
+            if(status) status.textContent = 'No hay QR activo. Probablemente ya autenticado.';
+        }
+    }catch(e){ console.log('Error al obtener QR:', e); }
+}
+
+setInterval(pollQr, 5000);
+</script>
+{% endblock %}

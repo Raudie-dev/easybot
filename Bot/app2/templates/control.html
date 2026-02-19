@@ -1,0 +1,34 @@
+{% extends "base_control.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Panel de Control - WhatsApp</h1>
+
+    <div class="mb-4">
+        <h5>Estado del Bot</h5>
+        <div class="alert alert-success d-flex align-items-center" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            El bot está funcionando correctamente.
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <h5>Conectar WhatsApp</h5>
+        <form method="post" style="margin-bottom: 16px;">
+            {% csrf_token %}
+            <input type="hidden" name="generate_qr" value="1">
+            <button class="btn btn-warning" type="submit">
+                <i class="fas fa-qrcode me-1"></i> Generar nuevo QR
+            </button>
+        </form>
+        {% if qr %}
+            <div class="d-flex flex-column align-items-center">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={{ qr|urlencode }}" alt="QR para conectar WhatsApp" class="mb-2" style="border:2px solid #10b981; border-radius:12px;">
+                <small class="text-muted">Escanee este código QR con WhatsApp para conectar el bot.</small>
+            </div>
+        {% else %}
+            <div class="alert alert-warning">No hay QR disponible actualmente. Asegúrese de que el gateway esté en ejecución.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
