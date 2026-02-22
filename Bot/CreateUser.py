@@ -9,7 +9,7 @@ from django.contrib.auth.hashers import make_password
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proyecto.settings')
 django.setup()
 
-from app2.models import User_admin
+from app1.models import User
 
 
 def crear_usuario(nombre: str, password: str, email: str | None, telefono: str | None) -> None:
@@ -17,16 +17,16 @@ def crear_usuario(nombre: str, password: str, email: str | None, telefono: str |
         print("Error: 'nombre' y 'password' son obligatorios.")
         sys.exit(2)
 
-    if User_admin.objects.filter(nombre=nombre).exists():
+    if User.objects.filter(nombre=nombre).exists():
         print("Error: El nombre de usuario ya existe.")
         sys.exit(3)
 
-    if email and User_admin.objects.filter(email=email).exists():
+    if email and User.objects.filter(email=email).exists():
         print("Error: El email ya está registrado.")
         sys.exit(4)
 
     hashed_password = make_password(password)
-    user = User_admin(
+    user = User(
         nombre=nombre,
         password=hashed_password,
         email=email if email else None,

@@ -3,111 +3,170 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Registros de Prueba</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EasyBot — El bot más fácil de usar | Raudie</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <style>
+        .hero { padding: 80px 0; }
+        .feature-icon { font-size: 2.2rem; }
+        .cta-btn { min-width: 180px; }
+        .testimonial { background:#f8f9fa; border-radius:8px; padding:20px; }
+    </style>
 </head>
 <body>
     <!-- Navbar -->
-    <header class="header">
-        <div class="container header-wrapper">
-            <a href="{% url 'index' %}" class="logo">
-                <i class="fas fa-flask-vial me-2"></i>PruebasApp
+    <header class="py-3 border-bottom">
+        <div class="container d-flex align-items-center justify-content-between">
+            <a href="{% url 'index' %}" class="d-flex align-items-center text-decoration-none text-dark">
+                <i class="fas fa-robot fa-2x me-2 text-primary"></i>
+                <div>
+                    <strong>EasyBot</strong>
+                    <div style="font-size:0.85rem;">por Raudie</div>
+                </div>
             </a>
             <nav>
-                <ul class="nav-list">
-                    <li><a href="{% url 'index' %}" class="active"><i class="fas fa-table"></i> Registros</a></li>
-                    <li><a href="#"><i class="fas fa-info-circle"></i> Acerca</a></li>
-                    <li><a href="#"><i class="fas fa-envelope"></i> Contacto</a></li>
+                <ul class="nav">
+                    <li class="nav-item"><a class="nav-link" href="#features">Características</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#how">Cómo funciona</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Contacto</a></li>
                 </ul>
             </nav>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="welcome-area" style="padding-top: 120px;">
+    <!-- Hero -->
+    <section class="hero">
         <div class="container">
-            <div class="welcome-content">
-                <div class="welcome-text">
-                    <h1><i class="fas fa-database"></i> Consulta de Registros</h1>
-                    <p>
-                        Visualiza y filtra los registros de pruebas de manera sencilla y dinámica.<br>
-                        Utiliza el buscador y los filtros para encontrar la información que necesitas.
-                    </p>
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="display-5 fw-bold">EasyBot — El bot más fácil de usar</h1>
+                    <p class="lead">Conecta tu WhatsApp en minutos con agentes de IA y automatiza la atención al cliente. Desarrollado por Raudie para que tu empresa atienda mejor, más rápido y sin complicaciones.</p>
+                    <div class="d-flex gap-2 mt-4">
+                        <a href="#contact" class="btn btn-primary cta-btn"><i class="fab fa-whatsapp me-2"></i>Conectar WhatsApp</a>
+                        <a href="#features" class="btn btn-outline-secondary cta-btn">Ver características</a>
+                    </div>
                 </div>
-                <div class="welcome-image">
-                    <img src="{% static 'images/data_hero.png' %}" alt="Registros" style="max-width:350px;">
+                <div class="col-md-6 text-center">
+                    <img src="{% static 'images/data_hero.png' %}" alt="EasyBot" class="img-fluid" style="max-width:420px;">
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Tabla de registros -->
-    <section class="section section-light" style="padding-top: 40px;">
+    <!-- Features -->
+    <section id="features" class="py-5 bg-white">
         <div class="container">
-            <h2 class="section-title" style="font-size:2rem;"><i class="fas fa-list"></i> Registros de Prueba</h2>
-            <form method="get" class="row g-3 mb-4">
+            <h2 class="h3 mb-4">¿Por qué EasyBot?</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="p-4 border rounded h-100 text-center">
+                        <div class="mb-3 feature-icon text-primary"><i class="fas fa-plug"></i></div>
+                        <h5>Integración sencilla</h5>
+                        <p class="mb-0">Conecta tu número de WhatsApp en pasos simples, sin instalaciones complejas ni infraestructura extra.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-4 border rounded h-100 text-center">
+                        <div class="mb-3 feature-icon text-primary"><i class="fas fa-brain"></i></div>
+                        <h5>Agentes de IA</h5>
+                        <p class="mb-0">Responde consultas automáticamente con agentes entrenados para comprender y ayudar a tus clientes.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-4 border rounded h-100 text-center">
+                        <div class="mb-3 feature-icon text-primary"><i class="fas fa-shield-alt"></i></div>
+                        <h5>Seguridad y privacidad</h5>
+                        <p class="mb-0">Tus conversaciones se manejan con estándares de seguridad; Raudie prioriza la privacidad de tus datos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how" class="py-5">
+        <div class="container">
+            <h2 class="h3 mb-4">Cómo funciona</h2>
+            <div class="row g-4">
+                <div class="col-md-4 text-center">
+                    <div class="p-3">
+                        <div class="feature-icon text-primary mb-2"><i class="fas fa-phone"></i></div>
+                        <h6>Paso 1</h6>
+                        <p class="mb-0">Conecta tu número de WhatsApp con EasyBot.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="p-3">
+                        <div class="feature-icon text-primary mb-2"><i class="fas fa-robot"></i></div>
+                        <h6>Paso 2</h6>
+                        <p class="mb-0">Configura agentes de IA para manejar preguntas frecuentes.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="p-3">
+                        <div class="feature-icon text-primary mb-2"><i class="fas fa-chart-line"></i></div>
+                        <h6>Paso 3</h6>
+                        <p class="mb-0">Automatiza flujos y mejora la atención al cliente con métricas en tiempo real.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-5 bg-white">
+        <div class="container">
+            <h2 class="h3 mb-4">Lo que dicen nuestros clientes</h2>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="testimonial">
+                        <p>"EasyBot nos permitió reducir el tiempo de respuesta un 70% y mejorar la satisfacción del cliente."</p>
+                        <div class="text-muted">— María López, Atención al Cliente</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="testimonial">
+                        <p>"La integración fue tan simple que nuestro equipo la implementó en un día."</p>
+                        <div class="text-muted">— Javier Gómez, CTO</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact / CTA -->
+    <section id="contact" class="py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-7">
+                    <h3>Empieza hoy con EasyBot</h3>
+                    <p class="mb-4">Habla con nosotros para conectar tu WhatsApp, ver una demo o solicitar una prueba gratuita.</p>
+                    <a href="mailto:contacto@raudie.com" class="btn btn-primary me-2"><i class="fas fa-envelope me-2"></i>Enviar correo</a>
+                    <a href="#" class="btn btn-outline-secondary"><i class="fas fa-phone me-2"></i>Solicitar demo</a>
+                </div>
                 <div class="col-md-5">
-                    <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre..." value="{{ busqueda }}">
+                    <div class="p-4 border rounded">
+                        <h6 class="mb-3">Contacto rápido</h6>
+                        <p class="mb-1"><strong>Email:</strong> contacto@raudie.com</p>
+                        <p class="mb-0"><strong>WhatsApp:</strong> +34 600 000 000</p>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <select name="socio" class="form-select">
-                        <option value="">-- Socio --</option>
-                        <option value="si" {% if socio == 'si' %}selected{% endif %}>Sí</option>
-                        <option value="no" {% if socio == 'no' %}selected{% endif %}>No</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn w-100">
-                        <i class="fas fa-search"></i> Filtrar
-                    </button>
-                </div>
-                <div class="col-md-2">
-                    <a href="{% url 'index' %}" class="btn btn-secondary w-100">
-                        <i class="fas fa-eraser"></i> Limpiar
-                    </a>
-                </div>
-            </form>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Fecha</th>
-                        <th>Socio</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for prueba in pruebas %}
-                    <tr>
-                        <td>{{ prueba.nombre }}</td>
-                        <td>{{ prueba.fecha }}</td>
-                        <td>
-                            {% if prueba.socio %}
-                                <span class="badge bg-success">Sí</span>
-                            {% else %}
-                                <span class="badge bg-secondary">No</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="3" class="text-center">No hay registros.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="footer mt-5">
-        <div class="container footer-content">
-            <a href="{% url 'index' %}" class="footer-logo">
-                <i class="fas fa-flask-vial"></i> PruebasApp
-            </a>
-            <p>&copy; {{ now|date:"Y" }} PruebasApp. Todos los derechos reservados.</p>
+    <footer class="py-4 border-top">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div>
+                <strong>EasyBot</strong> por Raudie &copy; {{ now|date:"Y" }}
+            </div>
+            <div class="text-muted">Hecho con ❤️ para mejorar la atención al cliente</div>
         </div>
     </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
