@@ -1,90 +1,169 @@
 {% extends 'base_control.html' %}
+{% block title %}Configuración — EasyBot{% endblock %}
+
 {% block content %}
-<h2>Configuración del Bot WhatsApp</h2>
 
-<form method="post" class="mb-4" style="max-width: 600px;">
-        {% csrf_token %}
-        <div class="mb-3">
-                <label for="nombre" class="form-label">Nombre del Bot</label>
-                <input type="text" class="form-control" id="nombre" name="nombre" value="{{ config.nombre }}" required>
+<div class="page-header">
+    <div class="eyebrow">Ajustes</div>
+    <h1>Configuración del Bot</h1>
+    <p>Define el comportamiento, mensajes y credenciales de tu agente de WhatsApp.</p>
+</div>
+
+<form method="post" id="config-form" style="max-width: 680px;">
+    {% csrf_token %}
+
+    <!-- Bot identity -->
+    <div class="card" style="margin-bottom: 20px;">
+        <div class="card-title">Identidad del agente</div>
+
+        <div class="form-group">
+            <label class="form-label" for="nombre">Nombre del Bot</label>
+            <input
+                class="form-control"
+                type="text"
+                id="nombre"
+                name="nombre"
+                value="{{ config.nombre }}"
+                placeholder="Ej: Asistente EasyBot"
+                required
+            >
+            <p class="form-hint">Este nombre aparece en los registros internos.</p>
         </div>
-        <div class="mb-3">
-                <label for="mensaje_bienvenida" class="form-label">Mensaje de Bienvenida</label>
-                <input type="text" class="form-control" id="mensaje_bienvenida" name="mensaje_bienvenida" value="{{ config.mensaje_bienvenida }}">
+
+        <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="mensaje_bienvenida">Mensaje de bienvenida</label>
+            <input
+                class="form-control"
+                type="text"
+                id="mensaje_bienvenida"
+                name="mensaje_bienvenida"
+                value="{{ config.mensaje_bienvenida }}"
+                placeholder="Ej: ¡Hola! Soy el asistente virtual. ¿En qué puedo ayudarte? 👋"
+            >
+            <p class="form-hint">Primer mensaje que recibe el usuario al iniciar conversación.</p>
         </div>
-        <div class="mb-3">
-                <label for="instrucciones_ia" class="form-label">Prompt / Instrucciones IA</label>
-                <textarea class="form-control" id="instrucciones_ia" name="instrucciones_ia" rows="5" required>{{ config.instrucciones_ia }}</textarea>
-                <div class="form-text">Aquí puedes definir el comportamiento del bot, instrucciones o contexto para DeepSeek.</div>
+    </div>
+
+    <!-- AI instructions -->
+    <div class="card" style="margin-bottom: 20px;">
+        <div class="card-title">Instrucciones de IA</div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="instrucciones_ia">Prompt / Instrucciones para DeepSeek</label>
+            <textarea
+                class="form-control"
+                id="instrucciones_ia"
+                name="instrucciones_ia"
+                rows="7"
+                placeholder="Eres un asistente de atención al cliente de [Empresa]. Tu objetivo es..."
+                required
+            >{{ config.instrucciones_ia }}</textarea>
+            <p class="form-hint">Define el rol, tono y límites del agente. Cuanto más detallado, mejor.</p>
         </div>
-        <div class="mb-3">
-                <label for="api_key" class="form-label">API Key DeepSeek</label>
-                <input type="text" class="form-control" id="api_key" name="api_key" value="{{ config.api_key }}" required>
-                <div class="form-text">Tu API Key de DeepSeek (se usará para automatizar respuestas).</div>
+    </div>
+
+    <!-- API Key -->
+    <div class="card" style="margin-bottom: 28px;">
+        <div class="card-title">Credenciales</div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="api_key">API Key de DeepSeek</label>
+            <div class="api-key-wrap">
+                <input
+                    class="form-control"
+                    type="password"
+                    id="api_key"
+                    name="api_key"
+                    value="{{ config.api_key }}"
+                    placeholder="sk-••••••••••••••••"
+                    required
+                    autocomplete="off"
+                >
+                <button type="button" class="key-toggle" id="toggleKey" aria-label="Mostrar API key">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+            <p class="form-hint">
+                <i class="fas fa-shield-alt" style="color: var(--gold); margin-right: 4px;"></i>
+                Almacenada de forma segura. Nunca se muestra en logs.
+            </p>
         </div>
-        <button type="submit" class="btn btn-primary">Guardar configuración</button>
+    </div>
+
+    <!-- Submit -->
+    <div class="form-actions">
+        <button type="submit" class="btn btn-gold" id="saveBtn">
+            <i class="fas fa-floppy-disk"></i>
+            Guardar configuración
+        </button>
+        <span class="save-feedback" id="saveFeedback"></span>
+    </div>
 </form>
-{% if saved %}
-<div class="alert alert-success">Configuración guardada correctamente.</div>
-{% endif %}
 
-<script>
-// Enviar via AJAX para mejor UX
-document.getElementById('send-form').addEventListener('submit', async function(e){
-    e.preventDefault();
-    const number = document.getElementById('number').value.trim();
-    const message = document.getElementById('message').value.trim();
-    const status = document.getElementById('send-status');
-    status.textContent = 'Enviando...';
-
-    const formData = new FormData();
-    formData.append('number', number);
-    formData.append('message', message);
-    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
-
-    try{
-        const resp = await fetch('{% url "send_message" %}', { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-        const data = await resp.json();
-        if(resp.ok && data.ok){
-            status.textContent = 'Enviado correctamente';
-            document.getElementById('message').value = '';
-        } else {
-            status.textContent = 'Error: ' + (data.error || 'No se pudo enviar');
-        }
-    }catch(err){
-        status.textContent = 'Error: ' + err;
+<style>
+    .api-key-wrap {
+        position: relative;
     }
-    setTimeout(()=> status.textContent = '', 4000);
-});
-</script>
+    .api-key-wrap .form-control {
+        padding-right: 44px;
+    }
+    .key-toggle {
+        position: absolute;
+        right: 12px; top: 50%;
+        transform: translateY(-50%);
+        background: none; border: none;
+        color: var(--text-muted); cursor: pointer;
+        font-size: 0.82rem; padding: 4px 6px;
+        border-radius: 6px;
+        transition: color var(--transition);
+    }
+    .key-toggle:hover { color: var(--gold); }
 
+    .form-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .save-feedback {
+        font-size: 0.85rem;
+        font-weight: 500;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .save-feedback.show { opacity: 1; }
+    .save-feedback.ok   { color: var(--success); }
+    .save-feedback.err  { color: var(--danger); }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
 <script>
-// Polling sencillo para actualizar el QR cada 5 segundos
-async function pollQr(){
-    try{
-        const resp = await fetch('{% url "qr_json" %}');
-        if(!resp.ok) return;
-        const data = await resp.json();
-        const qr = data.qr;
-        const img = document.getElementById('qr-img');
-        const status = document.getElementById('qr-status');
-        if(qr){
-            const src = 'https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(qr) + '&size=300x300';
-            if(img){ img.src = src; }
-            else{
-                const newImg = document.createElement('img');
-                newImg.id = 'qr-img';
-                newImg.src = src;
-                document.getElementById('qr-area').appendChild(newImg);
-            }
-            if(status) status.textContent = '';
-        } else {
-            if(img) img.remove();
-            if(status) status.textContent = 'No hay QR activo. Probablemente ya autenticado.';
-        }
-    }catch(e){ console.log('Error al obtener QR:', e); }
-}
+    // ── API key visibility toggle ────────────────────────
+    const toggleKey = document.getElementById('toggleKey');
+    const apiKeyInput = document.getElementById('api_key');
 
-setInterval(pollQr, 5000);
+    toggleKey.addEventListener('click', () => {
+        const isHidden = apiKeyInput.type === 'password';
+        apiKeyInput.type = isHidden ? 'text' : 'password';
+        toggleKey.querySelector('i').className = isHidden ? 'fas fa-eye-slash' : 'fas fa-eye';
+    });
+
+    // ── Saved feedback on Django redirect ───────────────
+    {% if saved %}
+    (function() {
+        const fb = document.getElementById('saveFeedback');
+        fb.textContent = '✓ Configuración guardada';
+        fb.className   = 'save-feedback show ok';
+        setTimeout(() => fb.classList.remove('show'), 4000);
+    })();
+    {% endif %}
+
+    // ── Save button loading state ────────────────────────
+    document.getElementById('config-form').addEventListener('submit', function() {
+        const btn = document.getElementById('saveBtn');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+        btn.disabled  = true;
+    });
 </script>
 {% endblock %}

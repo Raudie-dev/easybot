@@ -1,61 +1,237 @@
 {% extends "base_control.html" %}
+{% block title %}Estado — EasyBot{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="mb-4">Panel de Control - WhatsApp</h1>
 
-    <div class="mb-4">
-        <h5>Estado del Bot</h5>
+<div class="page-header">
+    <div class="eyebrow">Panel de control</div>
+    <h1>Estado del Bot</h1>
+    <p>Monitorea y gestiona la conexión de WhatsApp en tiempo real.</p>
+</div>
+
+<!-- ── Status card ───────────────────────────────────────── -->
+<div class="card" style="margin-bottom: 24px;">
+    <div class="card-title">Conexión WhatsApp</div>
+
+    <div class="status-row">
         {% if bot_status == 'connected' %}
-        <div class="alert alert-success d-flex align-items-center" role="alert">
-            <i class="fas fa-check-circle me-2"></i>
-            Conectado (session activa)
+        <div class="status-badge status-connected">
+            <span class="status-dot"></span>
+            <i class="fas fa-check-circle"></i>
+            Conectado — Sesión activa
         </div>
+
         {% elif bot_status == 'initializing' %}
-        <div class="alert alert-info d-flex align-items-center" role="alert">
-            <i class="fas fa-spinner fa-spin me-2"></i>
-            Inicializando... generando QR
+        <div class="status-badge status-initializing">
+            <span class="status-dot"></span>
+            <i class="fas fa-spinner fa-spin"></i>
+            Inicializando — Generando QR
         </div>
+
         {% elif bot_status == 'unlinked' %}
-        <div class="alert alert-warning d-flex align-items-center" role="alert">
-            <i class="fas fa-unlink me-2"></i>
+        <div class="status-badge status-unlinked">
+            <span class="status-dot"></span>
+            <i class="fas fa-link-slash"></i>
             Teléfono desvinculado
         </div>
+
         {% else %}
-        <div class="alert alert-secondary d-flex align-items-center" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i>
+        <div class="status-badge status-unknown">
+            <span class="status-dot"></span>
+            <i class="fas fa-circle-question"></i>
             Estado: {{ bot_status }}
         </div>
         {% endif %}
     </div>
-
-    <div class="mb-4">
-        <h5>Conectar WhatsApp</h5>
-        <div class="mb-2 d-flex gap-2">
-            <form method="post" style="margin-bottom: 0;">
-                {% csrf_token %}
-                <input type="hidden" name="generate_qr" value="1">
-                <button class="btn btn-warning" type="submit">
-                    <i class="fas fa-qrcode me-1"></i> Generar nuevo QR
-                </button>
-            </form>
-
-            <form method="post" style="margin-bottom: 0;">
-                {% csrf_token %}
-                <input type="hidden" name="unlink" value="1">
-                <button class="btn btn-danger" type="submit">
-                    <i class="fas fa-unlink me-1"></i> Desvincular teléfono
-                </button>
-            </form>
-        </div>
-        {% if qr %}
-            <div class="d-flex flex-column align-items-center">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={{ qr|urlencode }}" alt="QR para conectar WhatsApp" class="mb-2" style="border:2px solid #10b981; border-radius:12px;">
-                <small class="text-muted">Escanee este código QR con WhatsApp para conectar el bot.</small>
-            </div>
-        {% else %}
-            <div class="alert alert-warning">No hay QR disponible actualmente. Asegúrese de que el gateway esté en ejecución.</div>
-        {% endif %}
-    </div>
 </div>
+
+<!-- ── Actions + QR ──────────────────────────────────────── -->
+<div class="card">
+    <div class="card-title">Acciones de conexión</div>
+
+    <div class="actions-row">
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="generate_qr" value="1">
+            <button class="btn btn-gold" type="submit">
+                <i class="fas fa-qrcode"></i>
+                Generar nuevo QR
+            </button>
+        </form>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="unlink" value="1">
+            <button class="btn btn-danger-soft" type="submit">
+                <i class="fas fa-link-slash"></i>
+                Desvincular teléfono
+            </button>
+        </form>
+    </div>
+
+    {% if qr %}
+    <div class="qr-area">
+        <div class="qr-wrap">
+            <img
+                id="qr-img"
+                src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&data={{ qr|urlencode }}"
+                alt="QR para conectar WhatsApp"
+            >
+        </div>
+        <div class="qr-hint">
+            <i class="fab fa-whatsapp"></i>
+            Escanea este código desde WhatsApp &rsaquo; Dispositivos vinculados &rsaquo; Vincular un dispositivo
+        </div>
+        <div class="qr-refresh">
+            <span class="refresh-dot"></span>
+            Actualizando QR automáticamente cada 5 s
+        </div>
+    </div>
+
+    {% else %}
+    <div class="qr-empty" id="qr-area">
+        <div class="qr-empty-icon"><i class="fas fa-qrcode"></i></div>
+        <p id="qr-status">No hay QR disponible. Asegúrate de que el gateway esté en ejecución y pulsa <strong>Generar nuevo QR</strong>.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    /* Status badge */
+    .status-row { margin-top: 4px; }
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border: 1px solid transparent;
+    }
+    .status-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .status-connected  { background: rgba(74,222,128,0.1);  border-color: rgba(74,222,128,0.25);  color: #4ADE80; }
+    .status-connected  .status-dot { background: #4ADE80; box-shadow: 0 0 6px #4ADE80; animation: pulse-dot 2s infinite; }
+    .status-initializing { background: rgba(96,165,250,0.1); border-color: rgba(96,165,250,0.25); color: #60A5FA; }
+    .status-initializing .status-dot { background: #60A5FA; animation: pulse-dot 1s infinite; }
+    .status-unlinked   { background: rgba(251,191,36,0.1);  border-color: rgba(251,191,36,0.25);  color: #FBBF24; }
+    .status-unlinked   .status-dot { background: #FBBF24; }
+    .status-unknown    { background: rgba(138,155,191,0.1); border-color: rgba(138,155,191,0.2);  color: #8A9BBF; }
+    .status-unknown    .status-dot { background: #8A9BBF; }
+
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%       { opacity: 0.5; transform: scale(1.5); }
+    }
+
+    /* Actions */
+    .actions-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 28px;
+    }
+
+    /* QR */
+    .qr-area {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        padding: 24px 0 8px;
+    }
+    .qr-wrap {
+        padding: 16px;
+        background: #fff;
+        border-radius: 16px;
+        display: inline-flex;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .qr-wrap img { display: block; border-radius: 6px; }
+    .qr-hint {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .qr-hint i { color: #4ADE80; }
+    .qr-refresh {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .refresh-dot {
+        width: 6px; height: 6px;
+        background: var(--gold);
+        border-radius: 50%;
+        animation: pulse-dot 1.5s infinite;
+    }
+
+    .qr-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 32px 0 8px;
+        text-align: center;
+    }
+    .qr-empty-icon {
+        font-size: 2.8rem;
+        color: var(--navy-light);
+    }
+    .qr-empty p {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        max-width: 380px;
+        line-height: 1.6;
+    }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Polling QR each 5s
+async function pollQr() {
+    try {
+        const resp = await fetch('{% url "qr_json" %}');
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const qr   = data.qr;
+        let img     = document.getElementById('qr-img');
+        const area  = document.getElementById('qr-area');
+        const status = document.getElementById('qr-status');
+
+        if (qr) {
+            const src = 'https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(qr) + '&size=260x260';
+            if (img) {
+                img.src = src;
+            } else if (area) {
+                const wrap = document.createElement('div');
+                wrap.className = 'qr-wrap';
+                const newImg = document.createElement('img');
+                newImg.id  = 'qr-img';
+                newImg.src = src;
+                newImg.alt = 'QR WhatsApp';
+                wrap.appendChild(newImg);
+                area.prepend(wrap);
+            }
+            if (status) status.textContent = '';
+        } else {
+            if (img) img.closest('.qr-wrap')?.remove();
+            if (status) status.textContent = 'No hay QR activo. Probablemente ya autenticado.';
+        }
+    } catch (e) {
+        console.error('Error al obtener QR:', e);
+    }
+}
+setInterval(pollQr, 5000);
+</script>
 {% endblock %}
